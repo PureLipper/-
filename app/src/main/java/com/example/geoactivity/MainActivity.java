@@ -2,6 +2,7 @@ package com.example.geoactivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,9 +15,11 @@ public class MainActivity extends AppCompatActivity {
     private Button mFalseButton;
     private Button mNextButton;
     private Button mPrevButton;
+    private Button mCheatButton;
     private TextView mQuestionTextView;
     private static final String TAG = "QuizActivity";
     private static final String KEY_INDEX = "index";
+    private static final int REQUEST_CODE_CHEAT = 0;
     private Questions[] mQuestionBank = new Questions[]{
             new Questions(R.string.question_australia, true),
             new Questions(R.string.question_oceans, true),
@@ -40,6 +43,17 @@ public class MainActivity extends AppCompatActivity {
         }
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
         updateQuestion();
+        mCheatButton = (Button)findViewById(R.id.cheat_button);
+        mCheatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Start CheatActivity
+                boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
+                Intent intent = CheatActivity.newIntent(MainActivity.this, answerIsTrue);
+                //startActivityForResult(intent,REQUEST_CODE_CHEAT);
+                startActivityForResult(intent,REQUEST_CODE_CHEAT);
+            }
+        });
         mTrueButton = (Button) findViewById(R.id.true_button);
         mTrueButton.setOnClickListener(new View.OnClickListener() {
             @Override
