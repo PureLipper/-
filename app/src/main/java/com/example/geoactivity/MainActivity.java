@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private int mCurrentIndex = 0;
     private int mCorrectNumber = 0;
     private int mAnsweredNumber = 0;
+    private int mCheatedNumber = 0;
     private boolean mIsCheater;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
             }
             mIsCheater = CheatActivity.wasAnswerShown(data);
             mQuestionBank[mCurrentIndex].Cheated();
+            mCheatedNumber++;
         }
     }
 
@@ -177,8 +179,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
-        if(mAnsweredNumber == mQuestionBank.length){
-            Toast.makeText(this,"Accuracy:" + mCorrectNumber + "/" + mAnsweredNumber,Toast.LENGTH_SHORT).show();
+        if(mAnsweredNumber + mCheatedNumber == mQuestionBank.length){
+            Toast.makeText(this,"Accuracy:" + mCorrectNumber + "/" + mQuestionBank.length,Toast.LENGTH_SHORT).show();
         }
     }
 }
