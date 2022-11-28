@@ -2,6 +2,7 @@ package com.example.geoactivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private int mCurrentIndex = 0;
     private int mCorrectNumber = 0;
     private int mAnsweredNumber = 0;
-
+    private boolean mIsCheater;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);//继承父类的super重载方法
@@ -47,10 +48,9 @@ public class MainActivity extends AppCompatActivity {
         mCheatButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Start CheatActivity
                 boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
+
                 Intent intent = CheatActivity.newIntent(MainActivity.this, answerIsTrue);
-                //startActivityForResult(intent,REQUEST_CODE_CHEAT);
                 startActivityForResult(intent,REQUEST_CODE_CHEAT);
             }
         });
@@ -58,20 +58,20 @@ public class MainActivity extends AppCompatActivity {
         mTrueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!mQuestionBank[mCurrentIndex].getIfAnswered()){
+                //if(!mQuestionBank[mCurrentIndex].getIfAnswered()){
                     checkAnswer(true);
                     mQuestionBank[mCurrentIndex].turnOnIfAnswered();
-                }
+                //}
             }
         });
         mFalseButton = (Button) findViewById(R.id.false_button);
         mFalseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!mQuestionBank[mCurrentIndex].getIfAnswered()){
+                //if(!mQuestionBank[mCurrentIndex].getIfAnswered()){
                     checkAnswer(false);
                     mQuestionBank[mCurrentIndex].turnOnIfAnswered();
-                }
+                //}
             }
         });
         mNextButton = (Button) findViewById(R.id.next_button);
@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
+                mIsCheater = false;
                 updateQuestion();
             }
         });
@@ -86,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
         mPrevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mIsCheater = false;
                 if (mCurrentIndex == 0) mCurrentIndex = mQuestionBank.length - 1;
                 else mCurrentIndex = (mCurrentIndex - 1) % mQuestionBank.length;
                 updateQuestion();
@@ -100,7 +102,20 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+        if (requestCode == REQUEST_CODE_CHEAT) {
+            if (data == null) {
+                return;
+            }
+            mIsCheater = CheatActivity.wasAnswerShown(data);
+            mQuestionBank[mCurrentIndex].Cheated();
+        }
+    }
 
     @Override
     public void onStart() {
@@ -142,14 +157,26 @@ public class MainActivity extends AppCompatActivity {
     private void checkAnswer(boolean userPressedTrue) {
         boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
         int messageResId = 0;
-        mAnsweredNumber++;
-        if (userPressedTrue == answerIsTrue) {
-            messageResId = R.string.correct_toast;
-            mCorrectNumber++;
+
+        if(mIsCheater || mQuestionBank[mCurrentIndex].getIfCheated()){
+            messageResId = R.string.judgment_toast;
+            Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show();
         } else {
-            messageResId = R.string.incorrect_toast;
+            if(!mQuestionBank[mCurrentIndex].getIfAnswered()) {
+                mAnsweredNumber++;
+                if (userPressedTrue == answerIsTrue) {
+                    messageResId = R.string.correct_toast;
+                    mCorrectNumber++;
+                } else {
+                    messageResId = R.string.incorrect_toast;
+                }
+
+            }
+            if(messageResId != 0){
+                Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show();
+            }
+
         }
-        Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show();
         if(mAnsweredNumber == mQuestionBank.length){
             Toast.makeText(this,"Accuracy:" + mCorrectNumber + "/" + mAnsweredNumber,Toast.LENGTH_SHORT).show();
         }
