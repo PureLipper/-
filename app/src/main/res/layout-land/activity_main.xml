@@ -29,7 +29,14 @@
             android:layout_height="wrap_content"
             android:text="@string/false_button" />
     </LinearLayout>
+    <TextView
+        android:id="@+id/cheat_times_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="60dp">
 
+    </TextView>
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -37,6 +37,12 @@
         android:text = "@string/cheat_button">
 
     </Button>
+    <TextView
+        android:id="@+id/cheat_times_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    </TextView>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

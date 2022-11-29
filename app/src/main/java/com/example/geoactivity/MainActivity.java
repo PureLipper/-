@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 public class MainActivity extends AppCompatActivity {
     private Button mTrueButton;
     private Button mFalseButton;
@@ -18,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mPrevButton;
     private Button mCheatButton;
     private TextView mQuestionTextView;
+    private TextView mCheatTimesLeftTextView;
     private static final String TAG = "QuizActivity";
     private static final String KEY_INDEX = "index";
     private static final int REQUEST_CODE_CHEAT = 0;
@@ -44,15 +47,22 @@ public class MainActivity extends AppCompatActivity {
             mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
         }
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
+        mCheatTimesLeftTextView = (TextView) findViewById(R.id.cheat_times_left);
         updateQuestion();
         mCheatButton = (Button)findViewById(R.id.cheat_button);
         mCheatButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
+                if(mCheatedNumber == 3){
+                    Toast.makeText(MainActivity.this,"No more cheating chance.",Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
 
-                Intent intent = CheatActivity.newIntent(MainActivity.this, answerIsTrue);
-                startActivityForResult(intent,REQUEST_CODE_CHEAT);
+                    Intent intent = CheatActivity.newIntent(MainActivity.this, answerIsTrue);
+                    startActivityForResult(intent,REQUEST_CODE_CHEAT);
+                }
+
             }
         });
         mTrueButton = (Button) findViewById(R.id.true_button);
@@ -127,6 +137,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        mCheatTimesLeftTextView.setText("Cheating:" + mCheatedNumber + "/3");
+        //Toast.makeText(this,"Cheat times:" + mCheatedNumber + "/3",Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onResume() called");
     }
     @Override
